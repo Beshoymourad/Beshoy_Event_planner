@@ -39,16 +39,24 @@ function App() {
     <div className="app-container">
       {/* Notification System */}
       {notification.show && (
-        <div className={`notification ${notification.type}`}>
-          <span className="notification-message">{notification.message}</span>
-          <button 
-            className="notification-close"
-            onClick={() => setNotification({ show: false, message: '', type: '' })}
-          >
-            ×
-          </button>
-        </div>
-      )}
+  <div className="modal-overlay">
+    <div className={`modal-dialog ${notification.type}`}>
+      <div className="modal-icon">
+        {notification.type === 'success' ? '✓' : '⚠'}
+      </div>
+      <div className="modal-text">
+        <h3>{notification.type === 'success' ? 'Success' : 'Error'}</h3>
+        <p>{notification.message}</p>
+      </div>
+      <button 
+        className="modal-close-btn"
+        onClick={() => setNotification({ show: false, message: '', type: '' })}
+      >
+        ×
+      </button>
+    </div>
+  </div>
+)}
 
       <div className="auth-container">
         <div className="auth-header">
