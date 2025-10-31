@@ -1,23 +1,94 @@
-import logo from './logo.svg';
+// src/App.js
+import React, { useState } from 'react';
+import Login from './Login';
+import Register from './Register';
+import Welcome from './Welcome';
 import './App.css';
 
 function App() {
+  const [currentView, setCurrentView] = useState('login');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [currentUser, setCurrentUser] = useState('');
+  const [notification, setNotification] = useState({ show: false, message: '', type: '' });
+
+  const showNotification = (message, type = 'error') => {
+    setNotification({ show: true, message, type });
+    setTimeout(() => {
+      setNotification({ show: false, message: '', type: '' });
+    }, 5000);
+  };
+
+  const handleLoginSuccess = (username) => {
+    setIsLoggedIn(true);
+    setCurrentUser(username);
+    setCurrentView('welcome');
+  };
+
+  const handleLogout = () => {
+    setIsLoggedIn(false);
+    setCurrentUser('');
+    setCurrentView('login');
+    showNotification('You have been logged out successfully!', 'success');
+  };
+
+  if (isLoggedIn && currentView === 'welcome') {
+    return <Welcome username={currentUser} onLogout={handleLogout} />;
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="app-container">
+      {/* Notification System */}
+      {notification.show && (
+        <div className={`notification ${notification.type}`}>
+          <span className="notification-message">{notification.message}</span>
+          <button 
+            className="notification-close"
+            onClick={() => setNotification({ show: false, message: '', type: '' })}
+          >
+            ×
+          </button>
+        </div>
+      )}
+
+      <div className="auth-container">
+        <div className="auth-header">
+          <h1>Event Planner</h1>
+          <p>Manage your events effortlessly</p>
+        </div>
+        
+        <div className="auth-tabs">
+          <button 
+            className={`tab-button ${currentView === 'login' ? 'active' : ''}`}
+            onClick={() => setCurrentView('login')}
+          >
+            Login
+          </button>
+          <button 
+            className={`tab-button ${currentView === 'register' ? 'active' : ''}`}
+            onClick={() => setCurrentView('register')}
+          >
+            Register
+          </button>
+        </div>
+        
+        <div className="auth-content">
+          {currentView === 'login' ? 
+            <Login 
+              onLoginSuccess={handleLoginSuccess} 
+              onSwitchToRegister={() => setCurrentView('register')}
+              onShowNotification={showNotification}
+            /> : 
+            <Register 
+              onRegisterSuccess={() => {
+                setCurrentView('login');
+                showNotification('Registration successful! Please login.', 'success');
+              }} 
+              onSwitchToLogin={() => setCurrentView('login')}
+              onShowNotification={showNotification}
+            />
+          }
+        </div>
+      </div>
     </div>
   );
 }
